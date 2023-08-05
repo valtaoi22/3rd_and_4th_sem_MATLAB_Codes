@@ -1,0 +1,39 @@
+clc;
+clear all;
+Img= imread('test photos/WIN_20220313_12_14_25_Pro.jpg'); subplot(2,2,1); imshow(Img);
+ImgN= imnoise(Img,'Salt & Pepper',0.8); subplot(2,2,2); imshow(ImgN);
+[row col width]=size(ImgN);
+ImgNp=uint8(zeros(row+2,col+2,width));
+ImgNp(2:row+1,2:col+1,:)= ImgN;
+subplot(2,2,3); imshow(ImgNp);
+DImg = ImgNp;
+for k=1:width
+for i=2:row+1
+    for j=2:col+1
+        if ((ImgNp(i,j,k)==0 )|| (ImgNp(i,j,k)==255 ) )
+            wind=ImgNp(i-1:i+1,j-1:j+1,k);
+            p=0;
+            wind1=[];
+            for m=1:3
+                for n=1:3
+                    if((wind(m,n)~=255) && (wind(m,n)~=0))
+                        p=p+1;
+                        wind1(p)=wind(m,n);
+                    end
+                end
+            end
+            if (isempty(wind1))
+                pix=mean(mean(wind));
+            else
+                pix=median(wind1);
+            end
+           DImg(i,j,k)=pix;
+%         else
+%             DImg(i,j,k)=ImgNp(i,j,k);
+        end 
+    end
+end
+end
+DNIMG = DImg(2:row+1,2:col+1,:);  %denoised Dimg but zero padding left to remove DNIMG
+subplot(2,2,4);
+imshow(DNIMG)
